@@ -12,7 +12,7 @@ export default function Model(props) {
   const { pos } = useSpring({
     pos: clickDisc ? [0.2, 0, 0] : [0, 0, 0],
   });
-  const { nodes, materials } = useGLTF("/model.gltf");
+  const { nodes, materials } = useGLTF("/model.glb");
   const { metalRoughness } = useControls("Materials", {
     metalRoughness: { value: 0, min: 0, max: 1, label: "Metal Roughness" },
   });

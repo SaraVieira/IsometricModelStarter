@@ -84,7 +84,7 @@ function Viewer() {
           <planeBufferGeometry />
           <meshStandardMaterial color={planeColor} side={THREE.DoubleSide} />
         </mesh>
-        <mesh position={[0, 0, -10]} scale={[20, 20, 20]}>
+        <mesh position={[0, 0, -40]} scale={[20, 20, 20]}>
           <planeBufferGeometry />
           <meshStandardMaterial color={planeColor} side={THREE.DoubleSide} />
         </mesh>
