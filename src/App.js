@@ -1,17 +1,13 @@
-import React, { Suspense, useRef } from "react";
+import React, { Suspense, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, ContactShadows, Environment } from "@react-three/drei";
+import {
+  OrbitControls,
+  Html,
+  ContactShadows,
+  Environment,
+} from "@react-three/drei";
 import Model from "./Model";
-
-const shadows = {
-  "shadow-mapSize-width": 2048,
-  "shadow-mapSize-height": 2048,
-  "shadow-camera-far": 50,
-  "shadow-camera-left": -10,
-  "shadow-camera-right": 10,
-  "shadow-camera-top": 10,
-  "shadow-camera-bottom": -10,
-};
+import Lights from "./Lights";
 
 function degrees_to_radians(degrees) {
   var pi = Math.PI;
@@ -23,8 +19,6 @@ const Loading = () => {
 };
 
 function Viewer() {
-  const intensity = 0.2;
-  const radius = 10;
   const ref = useRef();
 
   return (
@@ -47,53 +41,21 @@ function Viewer() {
           <planeBufferGeometry />
           <meshStandardMaterial color="#4C5CFF" />
         </mesh>
-        <group>
-          <spotLight
-            position={[5, 5, 0]}
-            intensity={0.2}
-            color="white"
-            {...shadows}
-          />{" "}
-          <pointLight
-            position={[-radius * 2, -radius * 2, -radius * 2]}
-            intensity={intensity}
-            {...shadows}
-            color="red"
-          />
-          <pointLight
-            position={[radius * 2, radius * 2, radius * 2]}
-            intensity={intensity}
-            {...shadows}
-            color="blue"
-          />
-          <pointLight
-            scale={0.3}
-            intensity={1}
-            position={[-0.44, 0.95, 0.79]}
-            color="#E72B4C"
-            {...shadows}
-          />
-          <pointLight
-            scale={0.3}
-            intensity={1}
-            position={[0.4, 0.95, 0.79]}
-            color="#E72B4C"
-            {...shadows}
-          />
-        </group>
+        <Lights />
       </Suspense>
-
       <OrbitControls ref={ref} />
     </>
   );
 }
 
 const App = () => {
+  const [loaded, setLoaded] = useState();
   return (
     <Canvas
       colorManagement
       shadowMap
       shadows
+      onCreated={() => setLoaded(true)}
       orthographic
       dpr={[1, 2]}
       camera={{
@@ -103,6 +65,7 @@ const App = () => {
       }}
     >
       <Viewer />
+      {!loaded && <Loading />}
     </Canvas>
   );
 };
