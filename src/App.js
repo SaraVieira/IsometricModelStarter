@@ -1,8 +1,17 @@
 import * as THREE from "three";
-
-import React, { Suspense, useRef, useState } from "react";
+import {
+  EffectComposer,
+  DepthOfField,
+  Bloom,
+  Noise,
+  Sepia,
+  Vignette,
+  Glitch,
+  Pixelation,
+} from "@react-three/postprocessing";
+import React, { Suspense, useRef } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
-import { Leva, useControls } from "leva";
+import { useControls } from "leva";
 import {
   OrbitControls,
   Html,
@@ -92,6 +101,54 @@ function Viewer() {
 }
 
 const App = () => {
+  const {
+    vignette,
+    bloom,
+    depthOfField,
+    noise,
+    effects,
+    sepia,
+    pixel,
+    glitch,
+  } = useControls(
+    "Effects",
+    {
+      effects: {
+        hint: "Turn on to Use the checkbces below",
+        label: "Use Post Processing Effects",
+        value: false,
+      },
+      vignette: {
+        value: false,
+        label: "Vignette",
+      },
+      bloom: {
+        value: false,
+        label: "Bloom",
+      },
+      depthOfField: {
+        value: false,
+        label: "Depth Of Field",
+      },
+      noise: {
+        value: false,
+        label: "Noise",
+      },
+      sepia: {
+        value: false,
+        label: "Sepia",
+      },
+      pixel: {
+        value: false,
+        label: "Pixelation",
+      },
+      glitch: {
+        value: false,
+        label: "Glitch",
+      },
+    },
+    { collapsed: true }
+  );
   return (
     <Suspense fallback={<Loading />}>
       <Canvas
@@ -107,6 +164,38 @@ const App = () => {
         }}
       >
         <Viewer />
+        {effects && (
+          <EffectComposer>
+            {depthOfField && (
+              <DepthOfField
+                focusDistance={6.1}
+                focalLength={0.02}
+                bokehScale={2}
+                height={480}
+              />
+            )}
+            {bloom && (
+              <Bloom
+                luminanceThreshold={0}
+                luminanceSmoothing={0.9}
+                height={300}
+              />
+            )}
+            {noise && <Noise opacity={0.2} />}
+            {vignette && <Vignette eskil={false} offset={0.1} darkness={1.1} />}
+            {sepia && <Sepia intensity={0.9} />}
+
+            {pixel && <Pixelation granularity={8} />}
+            {glitch && (
+              <Glitch
+                delay={[1.5, 3.5]} // min and max glitch delay
+                duration={[0.6, 1.0]} // min and max glitch duration
+                active // turn on/off the effect (switches between "mode" prop and GlitchMode.DISABLED)
+                ratio={0.85} // Threshold for strong glitches, 0 - no weak glitches, 1 - no strong glitches.
+              />
+            )}
+          </EffectComposer>
+        )}
       </Canvas>
       <Loader />
     </Suspense>

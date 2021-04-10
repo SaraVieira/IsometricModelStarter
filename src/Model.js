@@ -20,7 +20,7 @@ export default function Model(props) {
     metalColor: { value: "#ffffff", label: "Metal Color" },
   });
   const { darkerMetalColor } = useControls("Materials", {
-    darkerMetalColor: { label: "Dark Metal Color", value: "#a0a0a0" },
+    darkerMetalColor: { label: "Dark Metal Color", value: "#414141" },
   });
   const RED = new THREE.MeshPhysicalMaterial({
     transparent: true,
@@ -74,7 +74,6 @@ export default function Model(props) {
         position={pos}
         onClick={() => {
           setClickedDisc(true);
-          props.onChange();
         }}
       >
         <mesh
