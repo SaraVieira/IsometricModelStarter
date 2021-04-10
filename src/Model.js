@@ -73,7 +73,7 @@ export default function Model(props) {
         onPointerOut={() => setHovered(false)}
         position={pos}
         onClick={() => {
-          setClickedDisc(true);
+          setClickedDisc((c) => !c);
         }}
       >
         <mesh
