@@ -1,10 +1,27 @@
 import * as THREE from "three";
-import React, { Suspense, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useGLTF } from "@react-three/drei";
+import { useControls } from "leva";
+import { useSpring, animated } from "react-spring/three";
 
 export default function Model(props) {
   const group = useRef();
-  const { nodes, materials } = useGLTF("/Friday_09-April-2021_19.25_01.gltf");
+  const [clickDisc, setClickedDisc] = useState(false);
+  const [hovered, setHovered] = useState(false);
+
+  const { pos } = useSpring({
+    pos: clickDisc ? [0.2, 0, 0] : [0, 0, 0],
+  });
+  const { nodes, materials } = useGLTF("/model.gltf");
+  const { metalRoughness } = useControls("Materials", {
+    metalRoughness: { value: 0, min: 0, max: 1, label: "Metal Roughness" },
+  });
+  const { metalColor } = useControls("Materials", {
+    metalColor: { value: "#ffffff", label: "Metal Color" },
+  });
+  const { darkerMetalColor } = useControls("Materials", {
+    darkerMetalColor: { label: "Dark Metal Color", value: "#a0a0a0" },
+  });
   const RED = new THREE.MeshPhysicalMaterial({
     transparent: true,
     color: "#f90931",
@@ -12,6 +29,24 @@ export default function Model(props) {
     transmission: 0.15,
     opacity: 1,
   });
+
+  const Metal = new THREE.MeshPhysicalMaterial({
+    color: metalColor,
+    metalness: 1,
+    roughness: metalRoughness,
+    side: THREE.DoubleSide,
+  });
+
+  const DarkerMetal = new THREE.MeshPhysicalMaterial({
+    color: darkerMetalColor,
+    metalness: 1,
+    roughness: metalRoughness,
+    side: THREE.DoubleSide,
+  });
+
+  useEffect(() => {
+    document.body.style.cursor = hovered ? "pointer" : "auto";
+  }, [hovered]);
 
   return (
     <group ref={group} {...props} dispose={null}>
@@ -25,26 +60,36 @@ export default function Model(props) {
         castShadow
         receiveShadow
         geometry={nodes.Handles.geometry}
-        material={materials.METAL}
+        material={Metal}
       />
       <mesh
         castShadow
         receiveShadow
         geometry={nodes.Main.geometry}
-        material={materials.METAL}
+        material={Metal}
       />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Cube005.geometry}
-        material={materials.Black}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.Cube005_1.geometry}
-        material={materials.METAL}
-      />
+      <animated.group
+        onPointerOver={() => setHovered(true)}
+        onPointerOut={() => setHovered(false)}
+        position={pos}
+        onClick={() => {
+          setClickedDisc(true);
+          props.onChange();
+        }}
+      >
+        <mesh
+          castShadow
+          receiveShadow
+          geometry={nodes.Cube005.geometry}
+          material={materials.Black}
+        />
+        <mesh
+          castShadow
+          receiveShadow
+          geometry={nodes.Cube005_1.geometry}
+          material={Metal}
+        />
+      </animated.group>
       <mesh
         castShadow
         receiveShadow
@@ -85,55 +130,55 @@ export default function Model(props) {
         castShadow
         receiveShadow
         geometry={nodes.Holder.geometry}
-        material={materials["METAL Black"]}
+        material={DarkerMetal}
       />
       <mesh
         castShadow
         receiveShadow
         geometry={nodes.Circle001.geometry}
-        material={materials["METAL Black"]}
+        material={DarkerMetal}
       />
       <mesh
         castShadow
         receiveShadow
         geometry={nodes.Circle002.geometry}
-        material={materials["METAL Black"]}
+        material={DarkerMetal}
       />
       <mesh
         castShadow
         receiveShadow
         geometry={nodes.Circle003.geometry}
-        material={materials.METAL}
+        material={Metal}
       />
       <mesh
         castShadow
         receiveShadow
         geometry={nodes.Circle004.geometry}
-        material={materials["METAL Black"]}
+        material={DarkerMetal}
       />
       <mesh
         castShadow
         receiveShadow
         geometry={nodes.Circle005.geometry}
-        material={materials["METAL Black"]}
+        material={DarkerMetal}
       />
       <mesh
         castShadow
         receiveShadow
         geometry={nodes.Circle006.geometry}
-        material={materials["METAL Black"]}
+        material={DarkerMetal}
       />
       <mesh
         castShadow
         receiveShadow
         geometry={nodes.Circle007.geometry}
-        material={materials["METAL Black"]}
+        material={DarkerMetal}
       />
       <mesh
         castShadow
         receiveShadow
         geometry={nodes.Circle008.geometry}
-        material={materials["METAL Black"]}
+        material={DarkerMetal}
       />
       <mesh
         castShadow
@@ -145,13 +190,14 @@ export default function Model(props) {
         castShadow
         receiveShadow
         geometry={nodes.Siren_Holder.geometry}
-        material={materials.METAL}
+        material={Metal}
       />
+
       <mesh
         castShadow
         receiveShadow
         geometry={nodes.Main002.geometry}
-        material={materials.countdown}
+        material={clickDisc ? materials.countdown : materials["Black tube"]}
       />
     </group>
   );

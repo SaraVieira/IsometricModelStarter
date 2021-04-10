@@ -1,10 +1,14 @@
+import * as THREE from "three";
+
 import React, { Suspense, useRef, useState } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
+import { Leva, useControls } from "leva";
 import {
   OrbitControls,
   Html,
   ContactShadows,
   Environment,
+  Loader,
 } from "@react-three/drei";
 import Model from "./Model";
 import Lights from "./Lights";
@@ -22,13 +26,39 @@ function Viewer() {
   const ref = useRef();
   const { viewport } = useThree();
   const size = viewport.width / 20;
+  const [{ showEnv }, set] = useControls("General", () => ({
+    showEnv: {
+      value: true,
+      label: "Show Enviroment Lightning",
+    },
+  }));
+  const { planeColor } = useControls("Materials", {
+    planeColor: { value: "#4C5CFF", label: "Plane Color" },
+  });
+  const { enviroment } = useControls("General", {
+    enviroment: {
+      label: "Enviroment",
+      value: "park",
+      options: [
+        "sunset",
+        "dawn",
+        "night",
+        "warehouse",
+        "forest",
+        "apartment",
+        "studio",
+        "city",
+        "park",
+        "lobby",
+      ],
+    },
+  });
 
-  console.log(size);
   return (
     <>
       {" "}
       <Suspense fallback={<Loading />}>
-        <Environment background preset="park" />
+        {showEnv && <Environment preset={enviroment} />}
         <Model scale={size} />
         <ContactShadows
           position={[0, 0, 0]}
@@ -43,7 +73,11 @@ function Viewer() {
           rotation={[-Math.PI / 2, 0, 0]}
         >
           <planeBufferGeometry />
-          <meshStandardMaterial color="#4C5CFF" />
+          <meshStandardMaterial color={planeColor} side={THREE.DoubleSide} />
+        </mesh>
+        <mesh position={[0, 0, -10]} scale={[20, 20, 20]}>
+          <planeBufferGeometry />
+          <meshStandardMaterial color={planeColor} side={THREE.DoubleSide} />
         </mesh>
         <Lights />
         {viewport.width < viewport.height && viewport.width < 800 ? (
@@ -58,14 +92,12 @@ function Viewer() {
 }
 
 const App = () => {
-  const [loaded, setLoaded] = useState();
   return (
     <Suspense fallback={<Loading />}>
       <Canvas
         colorManagement
         shadowMap
         shadows
-        onCreated={() => setLoaded(true)}
         orthographic
         dpr={[1, 2]}
         camera={{
@@ -75,8 +107,8 @@ const App = () => {
         }}
       >
         <Viewer />
-        {!loaded && <Loading />}
       </Canvas>
+      <Loader />
     </Suspense>
   );
 };
