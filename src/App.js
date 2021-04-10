@@ -1,5 +1,5 @@
 import React, { Suspense, useRef, useState } from "react";
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useThree } from "@react-three/fiber";
 import {
   OrbitControls,
   Html,
@@ -20,12 +20,16 @@ const Loading = () => {
 
 function Viewer() {
   const ref = useRef();
+  const { viewport } = useThree();
+  const size = viewport.width / 20;
 
+  console.log(size);
   return (
     <>
+      {" "}
       <Suspense fallback={<Loading />}>
-        <Environment background preset="park"></Environment>
-        <Model />
+        <Environment background preset="park" />
+        <Model scale={size} />
         <ContactShadows
           position={[0, 0, 0]}
           width={10}
@@ -42,6 +46,11 @@ function Viewer() {
           <meshStandardMaterial color="#4C5CFF" />
         </mesh>
         <Lights />
+        {viewport.width < viewport.height && viewport.width < 800 ? (
+          <Html>
+            <p className="rotate">Please rotate your phone for a better view</p>
+          </Html>
+        ) : null}
       </Suspense>
       <OrbitControls ref={ref} />
     </>
@@ -51,22 +60,24 @@ function Viewer() {
 const App = () => {
   const [loaded, setLoaded] = useState();
   return (
-    <Canvas
-      colorManagement
-      shadowMap
-      shadows
-      onCreated={() => setLoaded(true)}
-      orthographic
-      dpr={[1, 2]}
-      camera={{
-        scale: 0.45,
-        position: [-5.80215, 6.006, 8.65757],
-        rotation: [degrees_to_radians(60), degrees_to_radians(-35.7), 0],
-      }}
-    >
-      <Viewer />
-      {!loaded && <Loading />}
-    </Canvas>
+    <Suspense fallback={<Loading />}>
+      <Canvas
+        colorManagement
+        shadowMap
+        shadows
+        onCreated={() => setLoaded(true)}
+        orthographic
+        dpr={[1, 2]}
+        camera={{
+          scale: 0.45,
+          position: [-5.80215, 6.006, 8.65757],
+          rotation: [degrees_to_radians(60), degrees_to_radians(-35.7), 0],
+        }}
+      >
+        <Viewer />
+        {!loaded && <Loading />}
+      </Canvas>
+    </Suspense>
   );
 };
 
