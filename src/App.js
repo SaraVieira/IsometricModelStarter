@@ -20,7 +20,9 @@ import {
   Environment,
   Loader,
 } from "@react-three/drei";
-import Model from "./Model";
+import Bomb from "./Models/Bomb";
+import Book from "./Models/Book";
+import House from "./Models/House";
 import Lights from "./Lights";
 
 function degrees_to_radians(degrees) {
@@ -36,25 +38,23 @@ function Viewer() {
   const ref = useRef();
   const { viewport } = useThree();
   const size = viewport.width / 20;
-  useControls("General", {
-    ["Download As Image"]: button(() => {
-      console.log(document.getElementsByTagName("canvas")[0]);
-      var image = document
-        .getElementsByTagName("canvas")[0]
-        .toDataURL("image/png")
-        .replace("image/png", "image/octet-stream");
-
-      saveAs(image, "iso.png");
-    }),
+  const { model } = useControls("General", {
+    model: {
+      label: "Model",
+      value: "bomb",
+      options: ["bomb", "book", "house"],
+    },
   });
+
   const [{ showEnv }] = useControls("General", () => ({
     showEnv: {
       value: true,
       label: "Show Enviroment Lightning",
     },
   }));
-  const { planeColor } = useControls("Materials", {
+  const { planeColor, planeRoughness } = useControls("Materials", {
     planeColor: { value: "#52599d", label: "Plane Color" },
+    planeRoughness: { value: 0.5, min: 0, max: 1, label: "Plane Roughness" },
   });
   const { enviroment } = useControls("General", {
     enviroment: {
@@ -75,12 +75,40 @@ function Viewer() {
     },
   });
 
+  useControls("General", {
+    ["Download As Image"]: button(() => {
+      console.log(document.getElementsByTagName("canvas")[0]);
+      var image = document
+        .getElementsByTagName("canvas")[0]
+        .toDataURL("image/png")
+        .replace("image/png", "image/octet-stream");
+
+      saveAs(image, "iso.png");
+    }),
+  });
+
   return (
     <>
       {" "}
       <Suspense fallback={<Loading />}>
         {showEnv && <Environment preset={enviroment} />}
-        <Model scale={size} />
+        {model === "bomb" && <Bomb scale={size} />}
+
+        {model === "book" && (
+          <group position={[0, 0.37, 0]}>
+            <Book scale={size * 0.05} />
+          </group>
+        )}
+
+        {model === "house" && (
+          <group
+            position={[0, 0.091, 0]}
+            rotation={[0, degrees_to_radians(-90), 0]}
+          >
+            <House scale={size * 0.4} />
+          </group>
+        )}
+
         <ContactShadows
           position={[0, 0, 0]}
           width={10}
@@ -94,7 +122,11 @@ function Viewer() {
           rotation={[-Math.PI / 2, 0, 0]}
         >
           <planeBufferGeometry />
-          <meshStandardMaterial color={planeColor} side={THREE.DoubleSide} />
+          <meshStandardMaterial
+            roughness={planeRoughness}
+            color={planeColor}
+            side={THREE.DoubleSide}
+          />
         </mesh>
         <mesh position={[0, 0, -40]} scale={[20, 20, 20]}>
           <planeBufferGeometry />
