@@ -11,7 +11,8 @@ import {
 } from "@react-three/postprocessing";
 import React, { Suspense, useRef } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
-import { useControls } from "leva";
+import { useControls, button } from "leva";
+import { saveAs } from "file-saver";
 import {
   OrbitControls,
   Html,
@@ -35,14 +36,25 @@ function Viewer() {
   const ref = useRef();
   const { viewport } = useThree();
   const size = viewport.width / 20;
-  const [{ showEnv }, set] = useControls("General", () => ({
+  useControls("General", {
+    ["Download As Image"]: button(() => {
+      console.log(document.getElementsByTagName("canvas")[0]);
+      var image = document
+        .getElementsByTagName("canvas")[0]
+        .toDataURL("image/png")
+        .replace("image/png", "image/octet-stream");
+
+      saveAs(image, "iso.png");
+    }),
+  });
+  const [{ showEnv }] = useControls("General", () => ({
     showEnv: {
       value: true,
       label: "Show Enviroment Lightning",
     },
   }));
   const { planeColor } = useControls("Materials", {
-    planeColor: { value: "#4C5CFF", label: "Plane Color" },
+    planeColor: { value: "#52599d", label: "Plane Color" },
   });
   const { enviroment } = useControls("General", {
     enviroment: {
@@ -152,6 +164,7 @@ const App = () => {
   return (
     <Suspense fallback={<Loading />}>
       <Canvas
+        gl={{ preserveDrawingBuffer: true }}
         colorManagement
         shadowMap
         shadows
